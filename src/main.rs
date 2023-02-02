@@ -1,23 +1,25 @@
-use scraper;
+use std::env;
+use enter_the_gungeon_cli::wiki_scraper::{GameItem, WikiScraper};
 
 fn main() {
-    let base_url = "https://enterthegungeon.fandom.com/wiki/";
 
-    let content = match reqwest::blocking::get(base_url.to_owned() + "Shotgun_Coffee") {
-        Ok(v) => v.text().unwrap_or_else(|e| { panic!("Error al obtener el contenido: {}", e) }),
-        Err(e) => panic!("Se produjo un error: {}", e)
-    };
+    let args: Vec<String> = env::args().collect();
+    // dbg!(args);
 
-    let document = scraper::Html::parse_document(&content);
-
-    let main_table_selector = scraper::Selector::parse("div.mw-parser-output")
-        .unwrap_or_else(|e| { panic!("Error al obtener la tabla principal: {}", e) });
-
-    let nodes = document.select(&main_table_selector).map(|node| { node.inner_html() });
-
-    println!("CONTENIDO DE NODOS ENCONTRADOS");
-    for n in nodes {
-        println!("{}", n)
+    if args.len() < 2 || args.len() > 2 {
+        println!("Usage: etgcli [item name]");
+        return;
     }
+
+    let item_name = &args[1];
+
+    let base_url = "https://enterthegungeon.fandom.com/wiki/".to_string();
+
+    let mut wscraper = WikiScraper::new(base_url);
+
+    let item: GameItem = wscraper.fetch_item_info(item_name);
+
+    println!("{}", item.title);
+    println!("{}", item.description);
 
 }
