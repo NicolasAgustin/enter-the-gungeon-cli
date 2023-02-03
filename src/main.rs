@@ -17,7 +17,10 @@ fn main() {
 
     let mut wscraper = WikiScraper::new(base_url);
 
-    let item: GameItem = wscraper.fetch_item_info(item_name);
+    let item: GameItem = match wscraper.fetch_item_info(item_name) {
+        Ok(v) => v,
+        Err(e) => panic!("Se produjo un error al obtener la informacion: {}", e)
+    };
 
     println!("{}", item.title);
     println!("{}", item.description);
